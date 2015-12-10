@@ -1,0 +1,7 @@
+tvdb_api:
+tvdb_url: http://thetvdb.com
+link_provider: tv\Link\Imdb
+shows:
+  Game of Thrones: tt0944947
+  Homeland: tt1796960
+  Vikings: tt2306299

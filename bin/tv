@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Moinax\TvDb\Client;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Yaml\Yaml;
+use tv\CacheFactory;
+use tv\Command\StatusCommand;
+
+$home = $_SERVER['HOME'];
+
+$global_config = [];
+if (file_exists("$home/tv.yml")) {
+  $global_config = Yaml::parse(file_get_contents("$home/tv.yml"));
+}
+$config = array_merge(Yaml::parse(file_get_contents(__DIR__ . '/../config.yml')), $global_config);
+
+$tvdb = new Client($config['tvdb_api'], $config['tvdb_url']);
+$cache = CacheFactory::create();
+
+$application = new Application();
+$application->add(new StatusCommand(NULL, $tvdb, $cache, new $config['link_provider'], $config['shows']));
+$application->run();

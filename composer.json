@@ -1,0 +1,14 @@
+{
+    "require": {
+        "symfony/console": "~2.8",
+        "symfony/config": "~2.8",
+        "symfony/yaml": "~2.8",
+        "moinax/tvdb": "^1.0",
+        "doctrine/cache": "~1.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "tv\\": "src"
+        }
+    }
+}
