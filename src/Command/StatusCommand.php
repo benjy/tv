@@ -84,7 +84,7 @@ class StatusCommand extends Command {
         $latest_episode->name,
         sprintf('S%02d E%02d', $latest_episode->season, $latest_episode->number),
         $date_time,
-        $this->linkProvider->getLink($latest_episode),
+        $this->linkProvider->getLink($serie, $latest_episode),
       ];
     }
 
