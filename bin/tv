@@ -12,8 +12,8 @@ use tv\Command\StatusCommand;
 $home = $_SERVER['HOME'];
 
 $global_config = [];
-if (file_exists("$home/tv.yml")) {
-  $global_config = Yaml::parse(file_get_contents("$home/tv.yml"));
+if (file_exists("$home/.tv.yml")) {
+  $global_config = Yaml::parse(file_get_contents("$home/.tv.yml"));
 }
 $config = array_merge(Yaml::parse(file_get_contents(__DIR__ . '/../config.yml')), $global_config);
 
