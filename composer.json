@@ -11,5 +11,11 @@
         "psr-4": {
             "tv\\": "src"
         }
+    },
+    "bin": [
+        "bin/tv"
+    ],
+    "config": {
+        "bin-dir": "bin"
     }
 }
