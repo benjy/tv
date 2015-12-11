@@ -17,9 +17,10 @@ if (file_exists("$home/.tv.yml")) {
 }
 $config = array_merge(Yaml::parse(file_get_contents(__DIR__ . '/../config.yml')), $global_config);
 
-$tvdb = new Client($config['tvdb_api'], $config['tvdb_url']);
+$tvdb = new Client($config['tvdb_url'], $config['tvdb_api']);
 $cache = CacheFactory::create();
 
 $application = new Application();
 $application->add(new StatusCommand(NULL, $tvdb, $cache, new $config['link_provider'], $config['shows']));
+$application->setDefaultCommand('status');
 $application->run();
