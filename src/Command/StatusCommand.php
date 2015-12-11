@@ -61,8 +61,6 @@ class StatusCommand extends Command {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $io = new SymfonyStyle($input, $output);
-    $formatter = $this->getHelper('formatter');
-
     $results = [];
     foreach ($this->shows as $name => $imdbid) {
       $serie = $this->getSerie($imdbid);
@@ -78,12 +76,17 @@ class StatusCommand extends Command {
         $date_time = $latest_episode->firstAired->format('D - d/m/Y');
 
         $today = new \DateTimeImmutable();
+        // If we're printing entries for today then we add some additional
+        // formatting to make it easier to see.
         if ($latest_episode->firstAired->format('D') == $today->format('D')) {
-          if ($latest_episode->firstAired->format('d/m/y') !== $today->format('d/m/y')) {
-            $date_time = "<comment>$date_time</comment>";
+          // If the episode comes out today, then make it green.
+          if ($latest_episode->firstAired->format('d/m/y') === $today->format('d/m/y')) {
+            $date_time = "<info>$date_time</info>";
           }
           else {
-            $date_time = "<info>$date_time</info>";
+            // The episode isn't today, so is either in the future or in the
+            // past.
+            $date_time = "<comment>$date_time</comment>";
           }
         }
       }
@@ -134,16 +137,18 @@ class StatusCommand extends Command {
 
   protected function getLatestEpisode(int $serie_id) : Episode {
     $episodes = $this->getEpisodes($serie_id);
-    $episodes = array_reverse($episodes);
+    $episodes = array_values($episodes);
 
-    /** @var Episode $episode */
+    // Get the latest episode which was aired after today.
     $today = strtotime('today midnight');
     $i = 0;
-    do {
-      $last_episode = $episodes[$i];
-      $i++;
-    } while (isset($episodes[$i]) && $last_episode->firstAired && $last_episode->firstAired->getTimestamp() > $today);
-
+    $current_episode = $episodes[$i];
+    $last_episode = $current_episode;
+    /** @var Episode $episode */
+    while (isset($episodes[$i]) && $current_episode->firstAired && $current_episode->firstAired->getTimestamp() < $today) {
+      $last_episode = $current_episode;
+      $current_episode = $episodes[++$i];
+    }
     return $last_episode;
   }
 
