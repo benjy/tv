@@ -12,6 +12,7 @@ use Moinax\TvDb\Client;
 use Moinax\TvDb\Episode;
 use Moinax\TvDb\Serie;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -61,6 +62,7 @@ class StatusCommand extends Command {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $io = new SymfonyStyle($input, $output);
+    $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red', 'default'));
     $results = [];
     foreach ($this->shows as $name => $imdbid) {
       $serie = $this->getSerie($imdbid);
@@ -83,10 +85,13 @@ class StatusCommand extends Command {
           if ($latest_episode->firstAired->format('d/m/y') === $today->format('d/m/y')) {
             $date_time = "<info>$date_time</info>";
           }
-          else {
-            // The episode isn't today, so is either in the future or in the
-            // past.
+          elseif ($latest_episode->firstAired->getTimestamp() > $today->getTimestamp()) {
+            // Episode in the future.
             $date_time = "<comment>$date_time</comment>";
+          }
+          else {
+            // Episode in the past.
+            $date_time = "<red>$date_time</red>";
           }
         }
       }
@@ -94,6 +99,7 @@ class StatusCommand extends Command {
       // Store the results keyed by the $day so we can sort them by day of the
       // week.
       $results[$day][] = [
+        $latest_episode->firstAired->getTimestamp(),
         $serie->name,
         $latest_episode->name,
         sprintf('S%02d E%02d', $latest_episode->season, $latest_episode->number),
@@ -105,8 +111,16 @@ class StatusCommand extends Command {
     // Sort the results by day of the week.
     $rows = [];
     ksort($results);
+
     foreach ($results as $day => $episodes) {
+
+      // Sort the episodes as well.
+      uasort($episodes, function($a, $b) {
+        return $a[0] <=> $b[0];
+      });
+
       foreach ($episodes as $episode) {
+        unset($episode[0]);
         $rows[] = $episode;
       }
     }
