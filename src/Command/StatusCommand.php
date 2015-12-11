@@ -140,16 +140,22 @@ class StatusCommand extends Command {
     $episodes = array_values($episodes);
 
     // Get the latest episode which was aired after today.
-    $today = strtotime('today midnight');
+    $today = strtotime('-2 days');
     $i = 0;
-    $current_episode = $episodes[$i];
-    $last_episode = $current_episode;
-    /** @var Episode $episode */
-    while (isset($episodes[$i]) && $current_episode->firstAired && $current_episode->firstAired->getTimestamp() < $today) {
-      $last_episode = $current_episode;
-      $current_episode = $episodes[++$i];
-    }
-    return $last_episode;
+    do {
+      $current_episode = $episodes[$i];
+
+      // If we don't have a date, doesn't mean it's the latest, just keep
+      // looking.
+      if($current_episode->firstAired) {
+        // Great, we've found one.
+        if ($current_episode->firstAired->getTimestamp() > $today) {
+          break;
+        }
+      }
+    } while (isset($episodes[++$i]));
+
+    return $current_episode;
   }
 
 }
