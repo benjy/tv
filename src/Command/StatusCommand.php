@@ -61,6 +61,7 @@ class StatusCommand extends Command {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $io = new SymfonyStyle($input, $output);
+    $formatter = $this->getHelper('formatter');
 
     $results = [];
     foreach ($this->shows as $name => $imdbid) {
@@ -73,8 +74,18 @@ class StatusCommand extends Command {
       if ($latest_episode->firstAired) {
         // Add one day to allow for the US release times.
         $latest_episode->firstAired->add(new \DateInterval('P1D'));
-        $date_time = $latest_episode->firstAired->format('D - d/m/Y');
         $day = $latest_episode->firstAired->format('N');
+        $date_time = $latest_episode->firstAired->format('D - d/m/Y');
+
+        $today = new \DateTimeImmutable();
+        if ($latest_episode->firstAired->format('D') == $today->format('D')) {
+          if ($latest_episode->firstAired->format('d/m/y') !== $today->format('d/m/y')) {
+            $date_time = "<comment>$date_time</comment>";
+          }
+          else {
+            $date_time = "<info>$date_time</info>";
+          }
+        }
       }
 
       // Store the results keyed by the $day so we can sort them by day of the
