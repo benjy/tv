@@ -11,7 +11,7 @@ use Moinax\TvDb\Episode;
 use Moinax\TvDb\Serie;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use tv\Link\LinkProvider;
+use tv\Link\LinkProviderInterface;
 use tv\TvSourceInterface;
 
 /**
@@ -23,7 +23,7 @@ class CommandBase extends Command {
   protected $linkProvider;
   protected $shows;
 
-  public function __construct($name = NULL, TvSourceInterface $tvdb, LinkProvider $link, array $shows) {
+  public function __construct($name = NULL, TvSourceInterface $tvdb, LinkProviderInterface $link, array $shows) {
     parent::__construct($name);
     $this->tvdb = $tvdb;
     $this->linkProvider = $link;
