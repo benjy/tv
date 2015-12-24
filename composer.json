@@ -9,7 +9,8 @@
     },
     "autoload": {
         "psr-4": {
-            "tv\\": "src"
+            "tv\\": "src",
+            "tv\\Tests\\": "tests"
         }
     },
     "bin": [
@@ -17,5 +18,8 @@
     ],
     "config": {
         "bin-dir": "bin"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.1"
     }
 }

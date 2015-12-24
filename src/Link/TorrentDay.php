@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \tv\Link\Imdb
+ * Contains \tv\Link\TorrentDay
  */
 
 namespace tv\Link;
@@ -11,9 +11,9 @@ use Moinax\TvDb\Episode;
 use Moinax\TvDb\Serie;
 
 /**
- * The Imdb class.
+ * The TorrentDay link provider.
  */
-class Imdb implements LinkProviderInterface {
+class TorrentDay implements LinkProviderInterface {
 
   /**
    * Gets the link to the show.
@@ -25,7 +25,10 @@ class Imdb implements LinkProviderInterface {
    *   The link to the episode.
    */
   public function getLink(Serie $serie, Episode $episode) {
-    return $episode->imdbId ? sprintf('http://imdb.com/title/%s', $episode->imdbId) : 'N/A';
+    // Trim off any year on the series title, e.g. The Flash (2012) becomes
+    // The Flash.
+    $name = trim(preg_replace('/\(.+/', '', $serie->name));
+    return str_replace(' ', '+', sprintf('torrentday.com/browse.php?search=%s', $name));
   }
 
 }

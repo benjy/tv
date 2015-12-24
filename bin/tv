@@ -1,26 +1,31 @@
 #!/usr/bin/env php
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
 use Moinax\TvDb\Client;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Yaml\Yaml;
 use tv\CacheFactory;
-use tv\Command\StatusCommand;
+use tv\Command\UpcomingCommand;
+use tv\Command\WeekCommand;
+use tv\TvDb;
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $home = $_SERVER['HOME'];
-
 $global_config = [];
 if (file_exists("$home/.tv.yml")) {
   $global_config = Yaml::parse(file_get_contents("$home/.tv.yml"));
 }
 $config = array_merge(Yaml::parse(file_get_contents(__DIR__ . '/../config.yml')), $global_config);
 
-$tvdb = new Client($config['tvdb_url'], $config['tvdb_api']);
+$tvdb_client = new Client($config['tvdb_url'], $config['tvdb_api']);
 $cache = CacheFactory::create();
+$tvdb = new TvDb($tvdb_client, $cache);
 
 $application = new Application();
-$application->add(new StatusCommand(NULL, $tvdb, $cache, new $config['link_provider'], $config['shows']));
-$application->setDefaultCommand('status');
+$application->addCommands([
+  new WeekCommand(NULL, $tvdb, new $config['link_provider'], $config['shows']),
+  new UpcomingCommand(NULL, $tvdb, new $config['link_provider'], $config['shows']),
+]);
+$application->setDefaultCommand('upcoming');
 $application->run();

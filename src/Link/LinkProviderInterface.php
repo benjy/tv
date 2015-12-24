@@ -5,7 +5,7 @@ namespace tv\Link;
 use Moinax\TvDb\Episode;
 use Moinax\TvDb\Serie;
 
-interface LinkProvider {
+interface LinkProviderInterface {
 
   public function getLink(Serie $serie, Episode $episode);
 
