@@ -68,22 +68,18 @@ class CommandBase extends Command {
     $today = new \DateTimeImmutable();
     if ($episode->firstAired) {
       $date_time = $episode->firstAired->format('D - d/m/Y');
-      // If we're printing entries for today then we add some additional
-      // formatting to make it easier to see.
-      if ($episode->firstAired->format('D') == $today->format('D')) {
 
-        // If the episode comes out today, then make it green.
-        if ($episode->firstAired->format('d/m/y') === $today->format('d/m/y')) {
-          $date_time = "<info>$date_time</info>";
-        }
-        elseif ($episode->firstAired->getTimestamp() > $today->getTimestamp()) {
-          // Episode in the future.
-          $date_time = "<comment>$date_time</comment>";
-        }
-        else {
-          // Episode in the past.
-          $date_time = "<red>$date_time</red>";
-        }
+      // If the episode comes out today, then make it green.
+      if ($episode->firstAired->format('d/m/y') === $today->format('d/m/y')) {
+        $date_time = "<info>$date_time</info>";
+      }
+      elseif ($episode->firstAired->getTimestamp() > $today->getTimestamp()) {
+        // Episode in the future.
+        $date_time = "<comment>$date_time</comment>";
+      }
+      else {
+        // Episode in the past.
+        $date_time = "<red>$date_time</red>";
       }
     }
     return $date_time;
