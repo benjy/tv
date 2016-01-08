@@ -17,7 +17,7 @@ use Moinax\TvDb\Serie;
  */
 class TvDb implements TvSourceInterface {
 
-  const CACHE_TIME = 86400;
+  const CACHE_TIME = 86400 * 3;
 
   /**
    * The TvDb API key.

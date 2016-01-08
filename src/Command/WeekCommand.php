@@ -7,6 +7,7 @@
 
 namespace tv\Command;
 
+use Moinax\TvDb\Episode;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -71,7 +72,21 @@ class WeekCommand extends CommandBase {
         }
       }
     }
+    ksort($sorted_results);
+
     return $sorted_results;
+  }
+
+  protected function getFormattedDateTime(Episode $episode) {
+    $date_time = 'N/A';
+    if ($episode->firstAired) {
+      $date_time = $episode->firstAired->format('D - d/m/Y');
+      $today = new \DateTimeImmutable();
+      if ($episode->firstAired->format('d/m/y') === $today->format('d/m/y')) {
+        $date_time = '<info>' . $date_time . '</info>';
+      }
+    }
+    return $date_time;
   }
 
 }
