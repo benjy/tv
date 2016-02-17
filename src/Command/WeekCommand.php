@@ -41,8 +41,9 @@ class WeekCommand extends CommandBase {
     $end = new \DateTimeImmutable('this sunday');
     $io->title(sprintf('Showing episodes from %s to %s', $start->format('d/m/Y'), $end->format('d/m/Y')));
     $sorted_results = $this->getEpisodesForWeek($start, $end);
+    $header = ['Show', 'Episode Title', 'Season/Episode', 'Date', 'Time', 'Link'];
 
-    $this->displayAsTable($io, $sorted_results);
+    $this->displayAsTable($io, $header, $sorted_results);
   }
 
   /**
@@ -58,6 +59,9 @@ class WeekCommand extends CommandBase {
           continue;
         }
 
+        // Add a day to allow for the US delay.
+        $episode->firstAired->add(new \DateInterval('P1D'));
+
         // We're going backwards so if we have a timestamp that is before the
         // start of our week then we don't have an episode.
         if ($episode->firstAired->getTimestamp() < $start->getTimestamp()) {
@@ -67,7 +71,7 @@ class WeekCommand extends CommandBase {
         // If the episode falls within our week then we're good.
         $episode_timestamp = $episode->firstAired->getTimestamp();
         if ($episode_timestamp > $start->getTimestamp() && $episode_timestamp < $end->getTimestamp()) {
-          $day = $episode->firstAired->add(new \DateInterval('P1D'))->format('N');
+          $day = $episode->firstAired->format('N');
           $sorted_results[$day][] = [$info['serie'], $episode];
         }
       }
@@ -78,13 +82,14 @@ class WeekCommand extends CommandBase {
   }
 
   protected function getFormattedDateTime(Episode $episode) {
-    $date_time = 'N/A';
-    if ($episode->firstAired) {
-      $date_time = $episode->firstAired->format('D - d/m/Y');
-      $today = new \DateTimeImmutable();
-      if ($episode->firstAired->format('d/m/y') === $today->format('d/m/y')) {
-        $date_time = '<info>' . $date_time . '</info>';
-      }
+    if (!$episode->firstAired) {
+      return 'N/A';
+    }
+
+    $date_time = $episode->firstAired->format('D - d/m/Y');
+    $today = new \DateTimeImmutable();
+    if ($episode->firstAired->format('d/m/y') === $today->format('d/m/y')) {
+      $date_time = '<info>' . $date_time . '</info>';
     }
     return $date_time;
   }

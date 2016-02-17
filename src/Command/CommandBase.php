@@ -42,47 +42,54 @@ class CommandBase extends Command {
     return $results;
   }
 
-  protected function displayAsTable(SymfonyStyle $io, $results) {
+  protected function displayAsTable(SymfonyStyle $io, $header, $results) {
     $rows = [];
     foreach ($results as $day => $shows_per_day) {
       foreach ($shows_per_day as $result) {
         $rows[] = $this->getRow(...$result);
       }
     }
-    $header = ['Show', 'Episode Title', 'Season/Episode', 'Date', 'Link'];
     $io->table($header, $rows);
   }
 
   protected function getRow(Serie $serie, Episode $episode) {
+    $time = 'N/A';
+    if ($episode->firstAired) {
+      $today = new \DateTime();
+      $episode_date = clone $episode->firstAired;
+      $episode_date->add(new \DateInterval('P1D'));
+      if ($episode_date->getTimestamp() >= $today->getTimestamp()) {
+        $time = $episode_date->diff($today)->format('%D days %M months');
+      }
+    }
     return [
       $serie->name,
       $episode->name,
       sprintf('S%02d E%02d', $episode->season, $episode->number),
       $this->getFormattedDateTime($episode),
+      $time,
       $this->linkProvider->getLink($serie, $episode),
     ];
   }
 
   protected function getFormattedDateTime(Episode $episode) {
-    $date_time = 'N/A';
-    $today = new \DateTimeImmutable();
-    if ($episode->firstAired) {
-      $date_time = $episode->firstAired->format('D - d/m/Y');
-
-      // If the episode comes out today, then make it green.
-      if ($episode->firstAired->format('d/m/y') === $today->format('d/m/y')) {
-        $date_time = "<info>$date_time</info>";
-      }
-      elseif ($episode->firstAired->getTimestamp() > $today->getTimestamp()) {
-        // Episode in the future.
-        $date_time = "<comment>$date_time</comment>";
-      }
-      else {
-        // Episode in the past.
-        $date_time = "<red>$date_time</red>";
-      }
+    if (!$episode->firstAired) {
+      return 'N/A';
     }
-    return $date_time;
+    $today = new \DateTimeImmutable();
+    $format = 'red';
+
+    // If the episode comes out today, then make it green.
+    if ($episode->firstAired->format('d/m/y') === $today->format('d/m/y')) {
+      $format = 'info';
+    }
+    elseif ($episode->firstAired->getTimestamp() > $today->getTimestamp()) {
+      // Episode in the future.
+      $format = 'comment';
+    }
+
+    $date_time = $episode->firstAired->format('D - d/m/Y');
+    return $format ? "<$format>$date_time</$format>" : $date_time;
   }
 
 }

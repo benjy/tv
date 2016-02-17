@@ -32,8 +32,9 @@ class UpcomingCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $io = new SymfonyStyle($input, $output);
     $io->getFormatter()->setStyle('red', new OutputFormatterStyle('red', 'default'));
+    $header = ['Show', 'Episode Title', 'Season/Episode', 'Date', 'Link'];
 
-    $this->displayAsTable($io, $this->getUpcomingEpisodes());
+    $this->displayAsTable($io, $header, $this->getUpcomingEpisodes());
   }
 
   /**
